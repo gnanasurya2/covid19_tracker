@@ -1,0 +1,11 @@
+.list {
+    display: flex;
+    align-items: center;
+    flex-flow: row;
+}
+
+@media (max-width:500px) {
+    .list {
+        flex-flow: column;
+    }
+}

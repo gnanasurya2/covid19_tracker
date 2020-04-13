@@ -1,0 +1,19 @@
+.sideDrawer {
+    position: fixed;
+    width: 60vw;
+    height: 100%;
+    background-color: #282828;
+    z-index: 1000;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.icon {
+    position: relative;
+    color: #dbdbdb;
+    width: 30px;
+    margin-left: 85%;
+    margin-top: 30px;
+    cursor: pointer;
+}

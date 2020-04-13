@@ -1,0 +1,44 @@
+.toolbar {
+    position: fixed;
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 4px;
+    background-color: #282828;
+    display: flex;
+    justify-content: space-between;
+    z-index: 1001;
+}
+
+.logo {
+    width: 60px;
+}
+
+.hamburger {
+    width: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-right: 20px;
+    padding: 15px 0px;
+    cursor: pointer;
+}
+
+.hamburger div {
+    width: 50%;
+    height: 3px;
+    border-radius: 4px;
+    background-color: #dbdbdb;
+}
+
+@media (min-width:500px) {
+    .hamburger {
+        display: none;
+    }
+}
+
+@media (max-width:500px) {
+    .hide {
+        display: none;
+    }
+}

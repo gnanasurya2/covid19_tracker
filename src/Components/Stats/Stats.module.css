@@ -1,0 +1,12 @@
+.wrapper {
+    width: 63%;
+    height: 150px;
+    background-color: #282828;
+    margin-top: 10px;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
