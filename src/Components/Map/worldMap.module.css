@@ -14,5 +14,6 @@ svg path:hover {
 @media (max-width:500px) {
     .map {
         width: 94%;
+        height: 300px;
     }
 }

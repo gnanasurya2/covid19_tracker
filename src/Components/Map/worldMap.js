@@ -44,9 +44,11 @@ class worldMap extends Component {
         this.text.current.children[1].innerHTML = countryData.latest;
       } else {
         this.tooltip.current.setAttributeNS(null, "visibility", "hidden");
+        this.props.onUpdateData(null);
       }
     } else {
       this.tooltip.current.setAttributeNS(null, "visibility", "hidden");
+      this.props.onUpdateData(null);
     }
   };
   assignColorHandler = () => {
