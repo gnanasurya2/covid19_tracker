@@ -1,6 +1,4 @@
 import React from "react";
-
-import logo from "../../../assests/images/logo.png";
 import styles from "./Country.module.css";
 
 const Country = (props) => {
@@ -11,6 +9,7 @@ const Country = (props) => {
       </span>
       <div className={styles.content}>
         <h2>{props.countryName}</h2>
+        {props.province !== "" ? <p>Province Name: {props.province}</p> : null}
         <p>Active cases: {props.activeCases}</p>
       </div>
     </div>

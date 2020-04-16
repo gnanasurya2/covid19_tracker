@@ -31,7 +31,6 @@ export const fetchData = () => {
   console.log("fetchData");
   timeElasped = new Date().getSeconds();
   return (dispatch) => {
-    dispatch(fetchDataStart);
     axios
       .get("/all")
       .then((Response) => {

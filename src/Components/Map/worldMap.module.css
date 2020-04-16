@@ -4,6 +4,7 @@
     width: 62%;
     border-radius: 10px;
     height: 600px;
+    margin-top: 30px;
 }
 
 svg path:hover {
@@ -13,7 +14,7 @@ svg path:hover {
 
 @media (max-width:500px) {
     .map {
-        width: 94%;
+        width: 90%;
         height: 300px;
     }
 }

@@ -1,0 +1,45 @@
+.wrapper {
+    position: absolute;
+    top: 100px;
+    right: 30px;
+    height: 80px;
+    width: 30%;
+    background-color: #282828;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+}
+
+.input {
+    background-color: rgb(85, 85, 85);
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 20px;
+}
+
+.text {
+    color: white;
+    padding-right: 7px;
+}
+
+@media (max-width:500px) {
+    .wrapper {
+        position: relative;
+        width: 97%;
+        top: 20px;
+        right: 0;
+    }
+
+    .input {
+        width: 50%;
+        padding: 6px;
+        font-size: 16px;
+    }
+
+    .text {
+        font-size: 16px;
+    }
+}

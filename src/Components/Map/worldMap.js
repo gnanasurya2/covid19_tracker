@@ -1,4 +1,4 @@
-import React, { Component, ReactSVG } from "react";
+import React, { Component } from "react";
 import styles from "./worldMap.module.css";
 import { connect } from "react-redux";
 
@@ -15,22 +15,35 @@ class worldMap extends Component {
   }
   state = {
     updating: false,
+    isPointerDown: false,
+    pointerOrigin: null,
   };
   componentWillMount() {
     this.props.onFetchData();
   }
 
   clickHandler = (event) => {
-    console.log(event.target.attributes[1].nodeValue);
-    if (event.target.attributes[1].nodeValue.length === 2) {
+    let updatedIndex = null;
+    if (event.target.attributes.id.nodeValue.length === 2) {
       let countryData = this.props.data.locations.filter((country, index) => {
-        if (country.country_code === event.target.attributes[1].nodeValue) {
-          this.props.onUpdateData(index);
+        if (country.country_code === event.target.attributes.id.nodeValue) {
+          if (!updatedIndex) {
+            updatedIndex = index;
+          }
           return true;
         }
         return false;
-      })[0];
-      if (countryData) {
+      });
+      if (countryData.length > 0 && countryData[0].province !== "") {
+        let totalCases = countryData.reduce(
+          (total, element) => total + element.latest,
+          0
+        );
+        countryData[0].latest = totalCases;
+        countryData[0].province = "";
+      }
+      if (countryData.length > 0) {
+        this.props.onUpdateData(updatedIndex);
         let CTM = this.svg.current.getScreenCTM();
         let mouseX = (event.clientX - CTM.e) / CTM.a;
         let mouseY = (event.clientY - CTM.f) / CTM.d;
@@ -40,8 +53,8 @@ class worldMap extends Component {
           "transform",
           "translate(" + mouseX + "," + (mouseY - 100) + ")"
         );
-        this.text.current.children[0].innerHTML = countryData.country;
-        this.text.current.children[1].innerHTML = countryData.latest;
+        this.text.current.children[0].innerHTML = countryData[0].country;
+        this.text.current.children[1].innerHTML = countryData[0].latest;
       } else {
         this.tooltip.current.setAttributeNS(null, "visibility", "hidden");
         this.props.onUpdateData(null);
@@ -52,31 +65,100 @@ class worldMap extends Component {
     }
   };
   assignColorHandler = () => {
-    let timeElasped = new Date().getMilliseconds();
-    var countries = this.svg.current.children[0].children;
+    console.log("chrome is hell");
+    let countries = this.svg.current.children[0].children;
+    console.log(countries[0].attributes.id);
     this.props.data.locations.map((country) => {
       for (let c = 0; c < countries.length; c++) {
-        if (countries[c].attributes[1].nodeValue === country.country_code) {
+        if (countries[c].attributes.id.nodeValue === country.country_code) {
           if (country.latest < 100) {
-            countries[c].attributes[0].nodeValue = "fill: #ff9191";
+            countries[c].attributes.style.nodeValue = "fill: #ff9191";
           } else if (country.latest >= 100 && country.latest < 1000) {
-            countries[c].attributes[0].nodeValue = "fill: #ffa6a6";
+            countries[c].attributes.style.nodeValue = "fill: #ffa6a6";
           } else if (country.latest >= 1000 && country.latest < 2500) {
-            countries[c].attributes[0].nodeValue = "fill: #ffb3b3";
+            countries[c].attributes.style.nodeValue = "fill: #ffb3b3";
           } else if (country.latest >= 2500 && country.latest < 5000) {
-            countries[c].attributes[0].nodeValue = "fill: #ff6b6b";
+            countries[c].attributes.style.nodeValue = "fill: #ff6b6b";
           } else {
-            countries[c].attributes[0].nodeValue = "fill: #ff1c1c";
+            countries[c].attributes.style.nodeValue = "fill: #ff1c1c";
           }
         }
       }
-      // console.log(country.country_code, country.latest, ++count);
       return country;
     });
-    // setTimeout(this.forceUpdate(), 1000);
-    console.log(new Date().getMilliseconds() - timeElasped, "time");
     this.setState({ updating: true });
   };
+
+  wheelMovement = (event) => {
+    event.preventDefault();
+    let svgPoint = this.svg.current.viewBox.baseVal;
+    if (svgPoint.width <= 2001) {
+      event.preventDefault();
+      let normalized;
+      let delta = event.wheelDelta;
+      if (delta) {
+        normalized = delta % 120 === 0 ? delta / 120 : delta / 12;
+      } else {
+        delta = event.deltaY || event.detail || 0;
+        normalized = -(delta % 3 ? delta * 10 : delta / 3);
+      }
+
+      let scaleDelta = normalized > 0 ? 1 / 1.2 : 1.2;
+      let point = this.svg.current.createSVGPoint();
+      point.x = event.clientX;
+      point.y = event.clientY;
+      let startPoint = point.matrixTransform(
+        this.svg.current.getScreenCTM().inverse()
+      );
+      svgPoint.width *= scaleDelta;
+      svgPoint.height *= scaleDelta;
+      if (svgPoint.width > 2000) {
+        svgPoint.width = 2000;
+        svgPoint.height = 1000;
+        svgPoint.x = 0;
+        svgPoint.y = 0;
+        return;
+      }
+      svgPoint.x -= (startPoint.x - svgPoint.x) * (scaleDelta - 1);
+      svgPoint.y -= (startPoint.y - svgPoint.y) * (scaleDelta - 1);
+    }
+  };
+  getPointFromEvent = (event) => {
+    let point = this.svg.current.createSVGPoint();
+
+    if (event.targetTouches) {
+      point.x = event.targetTouches[0].clientX;
+      point.y = event.targetTouches[0].clientY;
+    } else {
+      point.x = event.clientX;
+      point.y = event.clientY;
+    }
+
+    let invertedSVGMatrix = this.svg.current.getScreenCTM().inverse();
+    return point.matrixTransform(invertedSVGMatrix);
+  };
+  onPointerDown = (event) => {
+    this.setState({
+      isPointerDown: true,
+      pointerOrigin: this.getPointFromEvent(event),
+    });
+  };
+
+  onPointerMove = (event) => {
+    if (!this.state.isPointerDown) {
+      return;
+    }
+    event.preventDefault();
+    let viewBox = this.svg.current.viewBox.baseVal;
+    let pointerPosition = this.getPointFromEvent(event);
+    viewBox.x -= pointerPosition.x - this.state.pointerOrigin.x;
+    viewBox.y -= pointerPosition.y - this.state.pointerOrigin.y;
+  };
+
+  onPointerUp = () => {
+    this.setState({ isPointerDown: false });
+  };
+
   render() {
     let data = null;
     if (this.props.loading) {
@@ -93,7 +175,6 @@ class worldMap extends Component {
           ref={this.svg}
           xmlnsvg="http://www.w3.org/2000/svg"
           xmlns="http://www.w3.org/2000/svg"
-          enable_background="new 0 0 2000 1001"
           pretty_print="False"
           style={{
             strokeLinejoin: "round",
@@ -101,15 +182,22 @@ class worldMap extends Component {
             cursor: "pointer",
             fill: "white",
             backgroundColor: "#368DC5",
+            overflow: "scroll",
           }}
           visibility="hidden"
           version="1.1"
-          viewBox="0 0 2000 1001"
+          viewBox="0 0 2000 1000"
           width="100%"
           height="100%"
           id="svg2"
           transform="scale(1)"
-          onClick={(event) => this.clickHandler(event)}
+          onClick={this.clickHandler}
+          onWheel={this.wheelMovement}
+          onPointerDown={this.onPointerDown}
+          onPointerUp={this.onPointerUp}
+          onPointerLeave={this.onPointerUp}
+          onPointerMove={this.onPointerMove}
+          preserveAspectRatio="align"
         >
           <WorldSvg />
           <g
