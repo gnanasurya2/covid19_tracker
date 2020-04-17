@@ -48,10 +48,10 @@ class Countries extends Component {
 
   clickHandler = (event) => {
     let countryName = event.target.children[1].childNodes[0].innerHTML;
-    let index = data.locations.findIndex(
+    let country = data.locations.find(
       (element) => element.country === countryName
     );
-    this.props.onUpdateData(index);
+    this.props.onUpdateData(country.country_code);
   };
   render() {
     if (this.props.data && this.state.update) {

@@ -34,16 +34,49 @@ class worldMap extends Component {
         }
         return false;
       });
+      let DeathData = this.props.death.locations.filter((country, index) => {
+        if (country.country_code === event.target.attributes.id.nodeValue) {
+          if (!updatedIndex) {
+            updatedIndex = index;
+          }
+          return true;
+        }
+        return false;
+      });
+
+      let RecoveredData = this.props.recovered.locations.filter(
+        (country, index) => {
+          if (country.country_code === event.target.attributes.id.nodeValue) {
+            if (!updatedIndex) {
+              updatedIndex = index;
+            }
+            return true;
+          }
+          return false;
+        }
+      );
+
       if (countryData.length > 0 && countryData[0].province !== "") {
         let totalCases = countryData.reduce(
           (total, element) => total + element.latest,
           0
         );
+
+        let totalRecovered = RecoveredData.reduce(
+          (total, element) => total + element.latest,
+          0
+        );
+        let totalDeaths = DeathData.reduce(
+          (total, element) => total + element.latest,
+          0
+        );
         countryData[0].latest = totalCases;
+        RecoveredData[0].latest = totalRecovered;
+        DeathData[0].latest = totalDeaths;
         countryData[0].province = "";
       }
       if (countryData.length > 0) {
-        this.props.onUpdateData(updatedIndex);
+        this.props.onUpdateData(countryData[0].country_code);
         let CTM = this.svg.current.getScreenCTM();
         let mouseX = (event.clientX - CTM.e) / CTM.a;
         let mouseY = (event.clientY - CTM.f) / CTM.d;
@@ -54,7 +87,9 @@ class worldMap extends Component {
           "translate(" + mouseX + "," + (mouseY - 100) + ")"
         );
         this.text.current.children[0].innerHTML = countryData[0].country;
-        this.text.current.children[1].innerHTML = countryData[0].latest;
+        this.text.current.children[1].innerHTML = countryData[0].latest
+          .toString()
+          .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
       } else {
         this.tooltip.current.setAttributeNS(null, "visibility", "hidden");
         this.props.onUpdateData(null);
@@ -251,6 +286,8 @@ const mapStateToProps = (state) => {
     error: state.dataerror,
     data: state.data.data,
     loading: state.data.loading,
+    death: state.data.deathsData,
+    recovered: state.data.recoveredData,
   };
 };
 

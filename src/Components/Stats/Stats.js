@@ -13,10 +13,18 @@ const Stats = (props) => {
     count[2] = props.recoveredData.latest;
   }
   if (props.index != null) {
-    country = props.data.locations[props.index].country;
-    count[0] = props.data.locations[props.index].latest;
-    count[1] = props.deathsData.locations[props.index].latest;
-    count[2] = props.recoveredData.locations[props.index].latest;
+    country = props.data.locations.find(
+      (loc) => loc.country_code === props.index
+    ).country;
+    count[0] = props.data.locations.find(
+      (loc) => loc.country_code === props.index
+    ).latest;
+    count[1] = props.deathsData.locations.find(
+      (loc) => loc.country_code === props.index
+    ).latest;
+    count[2] = props.recoveredData.locations.find(
+      (loc) => loc.country_code === props.index
+    ).latest;
   }
   return (
     <div className={styles.wrapper}>

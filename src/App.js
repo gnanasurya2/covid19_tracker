@@ -6,6 +6,7 @@ import WorldMap from "./Components/Map/worldMap";
 import Stats from "./Components/Stats/Stats";
 import Countries from "./Components/CountriesList/Countries";
 import Error from "./hoc/ErrorHandler";
+
 function App() {
   return (
     <Error>
